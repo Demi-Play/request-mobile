@@ -14,11 +14,20 @@ class Ticket(models.Model):
         ('high', 'Высокий'),
     ]
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tickets')
     title = models.CharField(max_length=200)
     description = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    specialist = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='assigned_tickets')
+    specialist = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_tickets'
+    )
+
+    def __str__(self):
+        return self.title
