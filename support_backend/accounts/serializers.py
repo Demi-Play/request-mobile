@@ -19,6 +19,12 @@ class UserSerializer(serializers.ModelSerializer):
             username=validated_data.get('username', '')
         )
         return user
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'company', 'phone', 'role']
+        read_only_fields = ['id', 'role']
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()

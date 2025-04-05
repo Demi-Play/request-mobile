@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
-from .serializers import UserSerializer, LoginSerializer
+from django.contrib.auth import authenticate, logout
+from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer
 from .models import CustomUser
 
 class RegisterView(generics.CreateAPIView):
@@ -28,3 +28,19 @@ class LoginView(generics.GenericAPIView):
             {'error': 'Неверный username или пароль'},
             status=status.HTTP_400_BAD_REQUEST
         )
+        
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+class LogoutView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        logout(request)
+        return Response({"message": "Выход выполнен успешно"}, status=status.HTTP_200_OK)
