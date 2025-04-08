@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Switch } from 'react-native';
-import { Text, ListItem, useTheme } from '@rneui/themed';
+import { View, StyleSheet } from 'react-native';
+import { Text, List, Switch, useTheme } from 'react-native-paper';
+import type { IconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
 import { useAuth } from '../../src/context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { user } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -23,83 +24,66 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Уведомления</Text>
-        <ListItem containerStyle={styles.listItem}>
-          <ListItem.Content>
-            <ListItem.Title>Push-уведомления</ListItem.Title>
-            <ListItem.Subtitle>
-              Получать уведомления о новых сообщениях и обновлениях тикетов
-            </ListItem.Subtitle>
-          </ListItem.Content>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={toggleNotifications}
-          />
-        </ListItem>
-      </View>
+      <List.Section>
+        <List.Subheader>Уведомления</List.Subheader>
+        <List.Item
+          title="Push-уведомления"
+          description="Получать уведомления о новых сообщениях и обновлениях тикетов"
+          right={() => (
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={toggleNotifications}
+            />
+          )}
+        />
+      </List.Section>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Внешний вид</Text>
-        <ListItem containerStyle={styles.listItem}>
-          <ListItem.Content>
-            <ListItem.Title>Темная тема</ListItem.Title>
-            <ListItem.Subtitle>
-              Включить темную тему приложения
-            </ListItem.Subtitle>
-          </ListItem.Content>
-          <Switch
-            value={darkMode}
-            onValueChange={toggleDarkMode}
-          />
-        </ListItem>
-      </View>
+      <List.Section>
+        <List.Subheader>Внешний вид</List.Subheader>
+        <List.Item
+          title="Темная тема"
+          description="Включить темную тему приложения"
+          right={() => (
+            <Switch
+              value={darkMode}
+              onValueChange={toggleDarkMode}
+            />
+          )}
+        />
+      </List.Section>
 
       {user?.role === 'admin' && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Административные настройки</Text>
-          <ListItem containerStyle={styles.listItem}>
-            <ListItem.Content>
-              <ListItem.Title>Управление пользователями</ListItem.Title>
-              <ListItem.Subtitle>
-                Просмотр и управление пользователями системы
-              </ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Chevron />
-          </ListItem>
-          <ListItem containerStyle={styles.listItem}>
-            <ListItem.Content>
-              <ListItem.Title>Статистика</ListItem.Title>
-              <ListItem.Subtitle>
-                Просмотр статистики по тикетам и пользователям
-              </ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Chevron />
-          </ListItem>
-        </View>
+        <List.Section>
+          <List.Subheader>Административные настройки</List.Subheader>
+          <List.Item
+            title="Управление пользователями"
+            description="Просмотр и управление пользователями системы"
+            left={(props: IconProps) => <List.Icon {...props} icon="account-group" />}
+          />
+          <List.Item
+            title="Статистика"
+            description="Просмотр статистики по тикетам и пользователям"
+            left={(props: IconProps) => <List.Icon {...props} icon="chart-bar" />}
+          />
+        </List.Section>
       )}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>О приложении</Text>
-        <ListItem containerStyle={styles.listItem}>
-          <ListItem.Content>
-            <ListItem.Title>Версия</ListItem.Title>
-            <ListItem.Subtitle>1.0.0</ListItem.Subtitle>
-          </ListItem.Content>
-        </ListItem>
-        <ListItem containerStyle={styles.listItem}>
-          <ListItem.Content>
-            <ListItem.Title>Лицензионное соглашение</ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Chevron />
-        </ListItem>
-        <ListItem containerStyle={styles.listItem}>
-          <ListItem.Content>
-            <ListItem.Title>Политика конфиденциальности</ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Chevron />
-        </ListItem>
-      </View>
+      <List.Section>
+        <List.Subheader>О приложении</List.Subheader>
+        <List.Item
+          title="Версия"
+          description="1.0.0"
+          left={(props: IconProps) => <List.Icon {...props} icon="information" />}
+        />
+        <List.Item
+          title="Лицензионное соглашение"
+          left={(props: IconProps) => <List.Icon {...props} icon="file-document" />}
+        />
+        <List.Item
+          title="Политика конфиденциальности"
+          left={(props: IconProps) => <List.Icon {...props} icon="shield-lock" />}
+        />
+      </List.Section>
     </View>
   );
 }
@@ -107,18 +91,5 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  section: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 16,
-    marginBottom: 8,
-    color: '#666',
-  },
-  listItem: {
-    marginBottom: 1,
   },
 }); 

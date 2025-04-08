@@ -1,6 +1,9 @@
 import { Stack } from 'expo-router';
 import { AuthProvider } from '../src/context/AuthContext';
 import { Provider as PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const theme = {
   ...MD3LightTheme,
@@ -14,19 +17,21 @@ const theme = {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <PaperProvider theme={theme}>
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="(auth)"
-            options={{ headerShown: false }}
-          />
-        </Stack>
-      </PaperProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <PaperProvider theme={theme}>
+          <Stack>
+            <Stack.Screen
+              name="(tabs)"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="(auth)"
+              options={{ headerShown: false }}
+            />
+          </Stack>
+        </PaperProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 } 

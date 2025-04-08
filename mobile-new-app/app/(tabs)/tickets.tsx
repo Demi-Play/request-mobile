@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { Text, FAB, useTheme } from '@rneui/themed';
+import { Text, FAB, useTheme } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { tickets } from '../../src/services/api';
 import { router } from 'expo-router';
@@ -9,7 +9,7 @@ import { useAuth } from '../../src/context/AuthContext';
 
 export default function TicketsScreen() {
   const [refreshing, setRefreshing] = useState(false);
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { user } = useAuth();
 
   const { data: ticketsList = [], isLoading, refetch } = useQuery<Ticket[]>({
@@ -52,8 +52,8 @@ export default function TicketsScreen() {
   };
 
   const renderTicket = ({ item }: { item: Ticket }) => (
-    <View style={[styles.ticketItem, { backgroundColor: theme.colors.white }]}>
-      <Text style={styles.ticketTitle}>{item.title}</Text>
+    <View style={[styles.ticketItem, { backgroundColor: theme.colors.surface }]}>
+      <Text variant="titleMedium" style={styles.ticketTitle}>{item.title}</Text>
       <View style={styles.ticketMeta}>
         <Text style={[styles.status, { color: theme.colors.primary }]}>
           {formatStatus(item.status)}
@@ -62,7 +62,7 @@ export default function TicketsScreen() {
           {formatPriority(item.priority)}
         </Text>
       </View>
-      <Text style={styles.ticketDescription} numberOfLines={2}>
+      <Text variant="bodyMedium" style={styles.ticketDescription} numberOfLines={2}>
         {item.description}
       </Text>
     </View>
@@ -86,14 +86,13 @@ export default function TicketsScreen() {
         onRefresh={onRefresh}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Нет тикетов</Text>
+          <Text variant="bodyLarge" style={styles.emptyText}>Нет тикетов</Text>
         }
       />
       {user?.role !== 'admin' && (
         <FAB
-          icon={{ name: 'add', color: 'white' }}
-          color={theme.colors.primary}
-          placement="right"
+          icon="plus"
+          style={styles.fab}
           onPress={() => router.push('/create-ticket')}
         />
       )}
@@ -124,8 +123,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   ticketTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 8,
   },
   ticketMeta: {
@@ -144,7 +141,11 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     marginTop: 20,
-    fontSize: 16,
     color: '#666',
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
   },
 }); 

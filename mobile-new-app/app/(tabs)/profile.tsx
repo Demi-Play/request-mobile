@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Avatar, ListItem, useTheme } from '@rneui/themed';
+import { Text, Avatar, List, useTheme } from 'react-native-paper';
+import type { IconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
 import { useAuth } from '../../src/context/AuthContext';
 import { router } from 'expo-router';
 
 export default function ProfileScreen() {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -13,56 +14,50 @@ export default function ProfileScreen() {
     router.replace('/login');
   };
 
+  const getInitials = () => {
+    if (!user?.first_name || !user?.last_name) {
+      return user?.username?.[0]?.toUpperCase() || '?';
+    }
+    return `${user.first_name[0]}${user.last_name[0]}`;
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Avatar
+        <Avatar.Text
           size={100}
-          rounded
-          title={`${user?.first_name[0]}${user?.last_name[0]}`}
-          containerStyle={styles.avatar}
+          label={getInitials()}
+          style={styles.avatar}
         />
-        <Text h4 style={styles.name}>
-          {user?.first_name} {user?.last_name}
+        <Text variant="headlineMedium" style={styles.name}>
+          {user?.first_name && user?.last_name 
+            ? `${user.first_name} ${user.last_name}`
+            : user?.username || 'Пользователь'}
         </Text>
-        <Text style={styles.email}>{user?.email}</Text>
-        <Text style={styles.role}>
+        <Text variant="bodyLarge" style={styles.email}>{user?.email || 'Email не указан'}</Text>
+        <Text variant="bodyLarge" style={styles.role}>
           {user?.role === 'admin' ? 'Администратор' : 'Пользователь'}
         </Text>
       </View>
 
-      <View style={styles.section}>
-        <ListItem
-          containerStyle={styles.listItem}
+      <List.Section>
+        <List.Item
+          title="Редактировать профиль"
+          left={(props: IconProps) => <List.Icon {...props} icon="account-edit" />}
           onPress={() => router.push('/edit-profile')}
-        >
-          <ListItem.Content>
-            <ListItem.Title>Редактировать профиль</ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Chevron />
-        </ListItem>
-
-        <ListItem
-          containerStyle={styles.listItem}
+        />
+        <List.Item
+          title="Изменить пароль"
+          left={(props: IconProps) => <List.Icon {...props} icon="lock" />}
           onPress={() => router.push('/change-password')}
-        >
-          <ListItem.Content>
-            <ListItem.Title>Изменить пароль</ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Chevron />
-        </ListItem>
-
-        <ListItem
-          containerStyle={styles.listItem}
+        />
+        <List.Item
+          title="Выйти"
+          left={(props: IconProps) => <List.Icon {...props} icon="logout" color={theme.colors.error} />}
+          titleStyle={{ color: theme.colors.error }}
           onPress={handleLogout}
-        >
-          <ListItem.Content>
-            <ListItem.Title style={{ color: theme.colors.error }}>
-              Выйти
-            </ListItem.Title>
-          </ListItem.Content>
-        </ListItem>
-      </View>
+        />
+      </List.Section>
     </ScrollView>
   );
 }
@@ -88,11 +83,5 @@ const styles = StyleSheet.create({
   },
   role: {
     color: '#666',
-  },
-  section: {
-    marginTop: 20,
-  },
-  listItem: {
-    marginBottom: 1,
   },
 }); 
