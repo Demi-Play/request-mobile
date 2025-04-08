@@ -23,7 +23,11 @@ class LoginView(generics.GenericAPIView):
         )
         if user:
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
+            user_data = UserSerializer(user).data
+            return Response({
+                'token': token.key,
+                'user': user_data
+            })
         return Response(
             {'error': 'Неверный username или пароль'},
             status=status.HTTP_400_BAD_REQUEST
