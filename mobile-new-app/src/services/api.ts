@@ -7,9 +7,9 @@ import { Platform } from 'react-native';
 // Для iOS эмулятора используем localhost
 // Для реального устройства используем IP адрес компьютера
 const BASE_URL = Platform.select({
-  android: 'http://192.168.0.107:8000/api',
-  ios: 'http://192.168.0.107:8000/api',
-  default: 'http://192.168.0.107:8000/api',
+  android: 'http://192.168.1.102:8000/api',
+  ios: 'http://192.168.1.102:8000/api',
+  default: 'http://192.168.1.102:8000/api',
 });
 
 const api = axios.create({

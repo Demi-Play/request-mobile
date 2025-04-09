@@ -6,21 +6,21 @@ import { useAuth } from '../../src/context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
-  const theme = useTheme();
+  // const theme = useTheme();
   const { user } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  // const [darkMode, setDarkMode] = useState(false);
 
   const toggleNotifications = async (value: boolean) => {
     setNotificationsEnabled(value);
     await AsyncStorage.setItem('notifications_enabled', value.toString());
   };
 
-  const toggleDarkMode = async (value: boolean) => {
-    setDarkMode(value);
-    await AsyncStorage.setItem('dark_mode', value.toString());
-    // Здесь нужно будет добавить логику для изменения темы приложения
-  };
+  // const toggleDarkMode = async (value: boolean) => {
+  //   setDarkMode(value);
+  //   await AsyncStorage.setItem('dark_mode', value.toString());
+  //   // Здесь нужно будет добавить логику для изменения темы приложения
+  // };
 
   return (
     <View style={styles.container}>
@@ -38,7 +38,7 @@ export default function SettingsScreen() {
         />
       </List.Section>
 
-      <List.Section>
+      {/* <List.Section>
         <List.Subheader>Внешний вид</List.Subheader>
         <List.Item
           title="Темная тема"
@@ -50,7 +50,7 @@ export default function SettingsScreen() {
             />
           )}
         />
-      </List.Section>
+      </List.Section> */}
 
       {user?.role === 'admin' && (
         <List.Section>
