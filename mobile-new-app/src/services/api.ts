@@ -2,6 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LoginResponse, Ticket, Message, Chat } from '../types';
 import { Platform } from 'react-native';
+import { CreateTicketDto, UpdateTicketDto } from '../types/ticket';
 
 // Для Android эмулятора используем 10.0.2.2 вместо localhost
 // Для iOS эмулятора используем localhost
@@ -125,8 +126,9 @@ export const auth = {
 };
 
 export const tickets = {
-  list: async (): Promise<Ticket[]> => {
-    const { data } = await api.get('/tickets/');
+  list: async (isAdmin?: boolean): Promise<Ticket[]> => {
+    const endpoint = isAdmin ? '/tickets/all/' : '/tickets/';
+    const { data } = await api.get(endpoint);
     return data;
   },
   create: async (title: string, description: string): Promise<Ticket> => {
@@ -137,8 +139,12 @@ export const tickets = {
     const { data } = await api.get(`/tickets/${id}/`);
     return data;
   },
-  update: async (id: number, status: string, priority: string): Promise<Ticket> => {
-    const { data } = await api.patch(`/tickets/${id}/`, { status, priority });
+  update: async (id: number, updates: { status?: string; priority?: string; description?: string }): Promise<Ticket> => {
+    const { data } = await api.patch(`/tickets/${id}/`, updates);
+    return data;
+  },
+  updateStatus: async (id: number, status: string): Promise<Ticket> => {
+    const { data } = await api.patch(`/tickets/${id}/status/`, { status });
     return data;
   },
 };
@@ -172,6 +178,51 @@ export const users = {
   getProfile: async (): Promise<User> => {
     const { data } = await api.get('/auth/profile/');
     return data;
+  },
+  updateProfile: async (userData: Partial<User>): Promise<User> => {
+    const { data } = await api.patch('/auth/profile/', userData);
+    return data;
+  },
+  changePassword: async (oldPassword: string, newPassword: string): Promise<void> => {
+    await api.post('/auth/change-password/', { old_password: oldPassword, new_password: newPassword });
+  }
+};
+
+export const ticketApi = {
+  // Получение списка заявок
+  getTickets: async (): Promise<Ticket[]> => {
+    const response = await api.get('/tickets');
+    return response.data;
+  },
+
+  // Получение одной заявки
+  getTicket: async (id: string): Promise<Ticket> => {
+    const response = await api.get(`/tickets/${id}`);
+    return response.data;
+  },
+
+  // Создание заявки
+  createTicket: async (data: CreateTicketDto): Promise<Ticket> => {
+    const response = await api.post('/tickets', data);
+    return response.data;
+  },
+
+  // Обновление заявки
+  updateTicket: async (id: string, data: UpdateTicketDto): Promise<Ticket> => {
+    const response = await api.patch(`/tickets/${id}`, data);
+    return response.data;
+  },
+
+  // Получение сообщений заявки
+  getTicketMessages: async (ticketId: string): Promise<Message[]> => {
+    const response = await api.get(`/tickets/${ticketId}/messages`);
+    return response.data;
+  },
+
+  // Отправка сообщения
+  sendMessage: async (ticketId: string, content: string): Promise<Message> => {
+    const response = await api.post(`/tickets/${ticketId}/messages`, { content });
+    return response.data;
   },
 };
 

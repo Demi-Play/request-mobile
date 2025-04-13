@@ -19,10 +19,26 @@ class TicketListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class AllTicketsListView(generics.ListAPIView):
+    serializer_class = TicketSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if not self.request.user.is_staff:
+            return Ticket.objects.none()
+        return Ticket.objects.all()
+
 class TicketDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        ticket = super().get_object()
+        user = self.request.user
+        if user.role == 'client' and ticket.user != user:
+            self.permission_denied(self.request)
+        return ticket
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -33,12 +49,45 @@ class TicketDetailView(generics.RetrieveUpdateDestroyAPIView):
         # Здесь можно добавить логику отправки уведомлений
         pass
 
+class TicketStatusUpdateView(generics.UpdateAPIView):
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'У вас нет прав для изменения статуса'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        ticket = self.get_object()
+        status = request.data.get('status')
+        
+        if not status:
+            return Response(
+                {'error': 'Статус не указан'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        ticket.status = status
+        ticket.save()
+        
+        serializer = self.get_serializer(ticket)
+        return Response(serializer.data)
+
 class AssignTicketView(generics.UpdateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'У вас нет прав для назначения тикетов'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
         ticket = self.get_object()
         specialist_id = request.data.get('specialist')
         
