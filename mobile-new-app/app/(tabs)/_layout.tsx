@@ -1,6 +1,8 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from 'react-native-paper';
+import { useAuth } from '../../src/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { ICONS } from '../../src/assets/icons';
 
 type TabBarIconProps = {
   color: string;
@@ -9,6 +11,7 @@ type TabBarIconProps = {
 
 export default function TabLayout() {
   const theme = useTheme();
+  const { user } = useAuth();
 
   return (
     <Tabs
@@ -33,21 +36,33 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tickets"
         options={{
-          title: 'Тикеты',
-          tabBarIcon: ({ color, size }: TabBarIconProps) => (
-            <Ionicons name="list" size={size} color={color} />
-          ),
+          title: 'Заявки',
+          tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.ticket(color, size),
+        }}
+      />
+      <Tabs.Screen
+        name="chats"
+        options={{
+          title: 'Чаты',
+          tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.chat(color, size),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Профиль',
-          tabBarIcon: ({ color, size }: TabBarIconProps) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.profile(color, size),
         }}
       />
+      {user?.role === 'admin' && (
+        <Tabs.Screen
+          name="admin"
+          options={{
+            title: 'Админ',
+            tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.settings(color, size),
+          }}
+        />
+      )}
     </Tabs>
   );
 } 

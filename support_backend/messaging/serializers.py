@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from .models import Message
-from accounts.models import CustomUser
+from accounts.serializers import UserSerializer
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    sender = UserSerializer(read_only=True)
 
     class Meta:
         model = Message
-        fields = '__all__'
+        fields = ['id', 'ticket', 'sender', 'text', 'timestamp', 'file']
+        read_only_fields = ['sender', 'timestamp']

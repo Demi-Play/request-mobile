@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { Card, Title, Paragraph, Button, ActivityIndicator } from 'react-native-paper';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { ticketApi } from '../../src/services/api';
-import { Ticket, Message } from '../../src/types/ticket';
+import { useLocalSearchParams, router } from 'expo-router';
+import { Card, Title, Paragraph, Button, ActivityIndicator, Text, useTheme, Divider } from 'react-native-paper';
+import { useAuth } from '@/contexts/AuthContext';
+import { ticketApi } from '@/services/api';
+import { Ticket, Message, TicketStatus } from '@/types';
+import { useQuery } from '@tanstack/react-query';
 
 export default function TicketScreen() {
   const { id } = useLocalSearchParams();
@@ -14,6 +15,12 @@ export default function TicketScreen() {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const theme = useTheme();
+
+  const { data: ticketData, isLoading } = useQuery<Ticket>({
+    queryKey: ['ticket', id],
+    queryFn: () => ticketApi.getTicket(id as string),
+  });
 
   useEffect(() => {
     loadTicketData();
@@ -58,18 +65,10 @@ export default function TicketScreen() {
     }
   };
 
-  if (loading) {
+  if (isLoading || !ticket) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  if (!ticket) {
-    return (
-      <View style={styles.container}>
-        <Title>Заявка не найдена</Title>
+        <Text>Загрузка...</Text>
       </View>
     );
   }
@@ -79,7 +78,7 @@ export default function TicketScreen() {
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView style={styles.content}>
+      <ScrollView style={[styles.content, { backgroundColor: theme.colors.background }]}>
         <Card style={styles.ticketCard}>
           <Card.Content>
             <Title>{ticket.title}</Title>
@@ -110,7 +109,7 @@ export default function TicketScreen() {
                     disabled={ticket.status === 'closed'}
                     style={styles.statusButton}
                   >
-                    Закрыть
+                    X
                   </Button>
                 </View>
               )}
@@ -124,18 +123,28 @@ export default function TicketScreen() {
               key={message.id} 
               style={[
                 styles.messageCard,
-                message.userId === user?.id && styles.ownMessage
+                message.sender.id === user?.id && styles.ownMessage
               ]}
             >
               <Card.Content>
-                <Paragraph>{message.content}</Paragraph>
+                <Paragraph>{message.text}</Paragraph>
                 <Paragraph style={styles.messageTime}>
-                  {new Date(message.createdAt).toLocaleString()}
+                  {message.sender.email}
                 </Paragraph>
               </Card.Content>
             </Card>
           ))}
         </View>
+
+        <Divider style={styles.divider} />
+
+        {/* <Button
+          mode="contained"
+          onPress={() => router.push(`/ticket/${id}/chat`)}
+          style={styles.button}
+        >
+          Перейти к чату
+        </Button> */}
       </ScrollView>
 
       <View style={styles.inputContainer}>
@@ -162,10 +171,8 @@ export default function TicketScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   content: {
-    flex: 1,
     padding: 16,
   },
   ticketCard: {
@@ -212,5 +219,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     borderRadius: 4,
     maxHeight: 100,
+  },
+  divider: {
+    marginVertical: 24,
+  },
+  button: {
+    marginTop: 16,
   },
 }); 

@@ -8,9 +8,9 @@ import { CreateTicketDto, UpdateTicketDto } from '../types/ticket';
 // Для iOS эмулятора используем localhost
 // Для реального устройства используем IP адрес компьютера
 const BASE_URL = Platform.select({
-  android: 'http://192.168.1.102:8000/api',
-  ios: 'http://192.168.1.102:8000/api',
-  default: 'http://192.168.1.102:8000/api',
+  android: 'http://192.168.0.131:8000/api',
+  ios: 'http://192.168.0.131:8000/api',
+  default: 'http://192.168.0.131:8000/api',
 });
 
 const api = axios.create({
@@ -151,11 +151,14 @@ export const tickets = {
 
 export const messages = {
   list: async (ticketId: number): Promise<Message[]> => {
-    const { data } = await api.get(`/messages/?ticket=${ticketId}`);
+    const { data } = await api.get(`/tickets/${ticketId}/messages/`);
     return data;
   },
-  send: async (ticketId: number, content: string): Promise<Message> => {
-    const { data } = await api.post('/messages/', { ticket: ticketId, content });
+  send: async (ticketId: number, text: string): Promise<Message> => {
+    const { data } = await api.post(`/tickets/${ticketId}/messages/`, { 
+      ticket: ticketId,
+      text 
+    });
     return data;
   },
   markAsRead: async (messageId: number): Promise<void> => {
@@ -191,37 +194,40 @@ export const users = {
 export const ticketApi = {
   // Получение списка заявок
   getTickets: async (): Promise<Ticket[]> => {
-    const response = await api.get('/tickets');
+    const response = await api.get('/tickets/');
     return response.data;
   },
 
   // Получение одной заявки
   getTicket: async (id: string): Promise<Ticket> => {
-    const response = await api.get(`/tickets/${id}`);
+    const response = await api.get(`/tickets/${id}/`);
     return response.data;
   },
 
   // Создание заявки
   createTicket: async (data: CreateTicketDto): Promise<Ticket> => {
-    const response = await api.post('/tickets', data);
+    const response = await api.post('/tickets/', data);
     return response.data;
   },
 
   // Обновление заявки
   updateTicket: async (id: string, data: UpdateTicketDto): Promise<Ticket> => {
-    const response = await api.patch(`/tickets/${id}`, data);
+    const response = await api.patch(`/tickets/${id}/`, data);
     return response.data;
   },
 
   // Получение сообщений заявки
   getTicketMessages: async (ticketId: string): Promise<Message[]> => {
-    const response = await api.get(`/tickets/${ticketId}/messages`);
+    const response = await api.get(`/tickets/${ticketId}/messages/`);
     return response.data;
   },
 
   // Отправка сообщения
-  sendMessage: async (ticketId: string, content: string): Promise<Message> => {
-    const response = await api.post(`/tickets/${ticketId}/messages`, { content });
+  sendMessage: async (ticketId: string, text: string): Promise<Message> => {
+    const response = await api.post(`/tickets/${ticketId}/messages/`, { 
+      text,
+      ticket: ticketId 
+    });
     return response.data;
   },
 };

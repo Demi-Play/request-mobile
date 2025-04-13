@@ -1,22 +1,39 @@
-export type TicketStatus = 'open' | 'in_progress' | 'closed';
+import { User } from './index';
+
+export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type TicketPriority = 'low' | 'medium' | 'high';
 
 export type Ticket = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   status: TicketStatus;
-  createdAt: string;
-  userId: string;
-  assignedTo?: string;
+  priority: TicketPriority;
+  created_at: string;
+  updated_at: string;
+  user: User;
+  specialist?: User;
+  department: number;
+  category: number;
+  due_date?: string;
+  attachments: string[];
+  tags: string[];
 };
 
 export type Message = {
-  id: string;
-  ticketId: string;
-  userId: string;
-  content: string;
-  createdAt: string;
-  attachments?: string[];
+  id: number;
+  text: string;
+  timestamp: string;
+  ticket: number;
+  sender: {
+    id: number;
+    username: string;
+    email: string;
+    phone: string;
+    company: string;
+    role: string;
+  };
+  file: string | null;
 };
 
 export type CreateTicketDto = {

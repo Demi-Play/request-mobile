@@ -1,53 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
-import { ProfileEdit } from '../../components/ProfileEdit';
-import { ChangePassword } from '../../components/ChangePassword';
-import { ICONS } from '../../assets/icons';
+import React from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Text, Avatar, List, useTheme } from 'react-native-paper';
+import type { IconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
+import { useAuth } from '@/contexts/AuthContext';
+import { router } from 'expo-router';
 
 export default function ProfileScreen() {
-  const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
+  const theme = useTheme();
+  const { user, logout } = useAuth();
 
-  if (!user) {
-    return (
-      <View style={styles.container}>
-        <Text>Пожалуйста, войдите в систему</Text>
-      </View>
-    );
-  }
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/login');
+  };
+
+  const getInitials = () => {
+    if (!user?.first_name || !user?.last_name) {
+      return user?.username?.[0]?.toUpperCase() || '?';
+    }
+    return `${user.first_name[0]}${user.last_name[0]}`;
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Профиль</Text>
-        <View style={styles.tabs}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'profile' && styles.activeTab]}
-            onPress={() => setActiveTab('profile')}
-          >
-            <Text style={[styles.tabText, activeTab === 'profile' && styles.activeTabText]}>
-              Редактировать профиль
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'password' && styles.activeTab]}
-            onPress={() => setActiveTab('password')}
-          >
-            <Text style={[styles.tabText, activeTab === 'password' && styles.activeTabText]}>
-              Сменить пароль
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Avatar.Text
+          size={100}
+          label={getInitials()}
+          style={styles.avatar}
+        />
+        <Text variant="headlineMedium" style={styles.name}>
+          {user?.first_name && user?.last_name 
+            ? `${user.first_name} ${user.last_name}`
+            : user?.username || 'Пользователь'}
+        </Text>
+        <Text variant="bodyLarge" style={styles.email}>{user?.email || 'Email не указан'}</Text>
+        <Text variant="bodyLarge" style={styles.role}>
+          {user?.role === 'admin' ? 'Администратор' : 'Пользователь'}
+        </Text>
       </View>
 
-      <View style={styles.content}>
-        {activeTab === 'profile' ? (
-          <ProfileEdit user={user} onUpdate={updateUser} />
-        ) : (
-          <ChangePassword />
-        )}
-      </View>
+      <List.Section>
+        <List.Item
+          title="Редактировать профиль"
+          left={(props: IconProps) => <List.Icon {...props} icon="account-edit" />}
+          onPress={() => router.push('/edit-profile')}
+        />
+        <List.Item
+          title="Изменить пароль"
+          left={(props: IconProps) => <List.Icon {...props} icon="lock" />}
+          onPress={() => router.push('/change-password')}
+        />
+        <List.Item
+          title="Выйти"
+          left={(props: IconProps) => <List.Icon {...props} icon="logout" color={theme.colors.error} />}
+          titleStyle={{ color: theme.colors.error }}
+          onPress={handleLogout}
+        />
+      </List.Section>
     </ScrollView>
   );
 }
@@ -55,42 +65,23 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   header: {
-    padding: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  tabs: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  tab: {
-    flex: 1,
-    padding: 15,
     alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#007AFF',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#007AFF',
-    fontWeight: 'bold',
-  },
-  content: {
     padding: 20,
+  },
+  avatar: {
+    marginBottom: 16,
+    backgroundColor: '#007AFF',
+  },
+  name: {
+    marginBottom: 8,
+  },
+  email: {
+    color: '#666',
+    marginBottom: 4,
+  },
+  role: {
+    color: '#666',
   },
 }); 

@@ -6,10 +6,13 @@ class TicketSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     specialist = UserSerializer(read_only=True)
     specialist_id = serializers.IntegerField(write_only=True, required=False)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
     
     class Meta:
         model = Ticket
-        fields = '__all__'
+        fields = ['id', 'user', 'title', 'description', 'status', 'priority', 
+                 'created_at', 'updated_at', 'specialist', 'specialist_id']
         read_only_fields = ['user', 'created_at', 'updated_at']
 
     def validate(self, data):

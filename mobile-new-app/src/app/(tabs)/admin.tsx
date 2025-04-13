@@ -1,60 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
+import { View, StyleSheet } from 'react-native';
+import { Title } from 'react-native-paper';
+import { useAuth } from '@/contexts/AuthContext';
 import { TicketList } from '../../components/TicketList';
+import { router } from 'expo-router';
 
 export default function AdminScreen() {
-  const { user } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
-  if (!user || user.role !== 'admin') {
+  if (!isAuthenticated || !isAdmin) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>У вас нет доступа к этой странице</Text>
+        <Title>Доступ запрещен</Title>
       </View>
     );
   }
 
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Панель администратора</Text>
-      </View>
+  const handleTicketPress = (ticket: any) => {
+    router.push(`/ticket/${ticket.id}`);
+  };
 
-      <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Все заявки</Text>
-        <TicketList user={user} />
-      </View>
-    </ScrollView>
+  return (
+    <View style={styles.container}>
+      <Title style={styles.title}>Панель администратора</Title>
+      <TicketList onTicketPress={handleTicketPress} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    padding: 16,
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  content: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 20,
+    marginBottom: 16,
   },
 }); 

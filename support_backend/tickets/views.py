@@ -10,9 +10,9 @@ class TicketListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'client':
+        if user.role == 'user':
             return Ticket.objects.filter(user=user)
-        elif user.role == 'specialist':
+        elif user.role == 'support':
             return Ticket.objects.filter(specialist=user)
         return Ticket.objects.all()
 
@@ -24,7 +24,7 @@ class AllTicketsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if not self.request.user.is_staff:
+        if self.request.user.role not in ['admin', 'manager']:
             return Ticket.objects.none()
         return Ticket.objects.all()
 
@@ -36,7 +36,7 @@ class TicketDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         ticket = super().get_object()
         user = self.request.user
-        if user.role == 'client' and ticket.user != user:
+        if user.role == 'user' and ticket.user != user:
             self.permission_denied(self.request)
         return ticket
 
@@ -55,7 +55,7 @@ class TicketStatusUpdateView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        if request.user.role not in ['support', 'admin', 'manager']:
             return Response(
                 {'error': 'У вас нет прав для изменения статуса'},
                 status=status.HTTP_403_FORBIDDEN
@@ -67,6 +67,12 @@ class TicketStatusUpdateView(generics.UpdateAPIView):
         if not status:
             return Response(
                 {'error': 'Статус не указан'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if status not in dict(Ticket.STATUS_CHOICES):
+            return Response(
+                {'error': 'Недопустимый статус'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -82,7 +88,7 @@ class AssignTicketView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        if request.user.role not in ['admin', 'manager']:
             return Response(
                 {'error': 'У вас нет прав для назначения тикетов'},
                 status=status.HTTP_403_FORBIDDEN
@@ -92,7 +98,7 @@ class AssignTicketView(generics.UpdateAPIView):
         specialist_id = request.data.get('specialist')
         
         try:
-            specialist = CustomUser.objects.get(id=specialist_id, role='specialist')
+            specialist = CustomUser.objects.get(id=specialist_id, role='support')
         except CustomUser.DoesNotExist:
             return Response(
                 {'error': 'Специалист не найден'},

@@ -23,7 +23,7 @@ export default function ChatScreen() {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (content: string) => messages.send(Number(id), content),
+    mutationFn: (text: string) => messages.send(Number(id), text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat', id] });
       setMessage('');
@@ -97,7 +97,7 @@ export default function ChatScreen() {
               {item.sender.first_name} {item.sender.last_name}
             </Text>
           )}
-          <Text style={styles.messageText}>{item.content}</Text>
+          <Text style={styles.messageText}>{item.text}</Text>
           <Text style={styles.timestamp}>
             {new Date(item.created_at).toLocaleTimeString()}
           </Text>

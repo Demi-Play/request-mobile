@@ -7,34 +7,34 @@ interface IconProps {
 }
 
 export const ICONS = {
-  settings: ({ color = '#000', size = 24 }: IconProps) => (
+  settings: (color: string = '#000', size: number = 24) => (
     <Ionicons name="settings-outline" size={size} color={color} />
   ),
-  chat: ({ color = '#000', size = 24 }: IconProps) => (
+  chat: (color: string = '#000', size: number = 24) => (
     <Ionicons name="chatbubble-outline" size={size} color={color} />
   ),
-  ticket: ({ color = '#000', size = 24 }: IconProps) => (
+  ticket: (color: string = '#000', size: number = 24) => (
     <Ionicons name="ticket-outline" size={size} color={color} />
   ),
-  profile: ({ color = '#000', size = 24 }: IconProps) => (
+  profile: (color: string = '#000', size: number = 24) => (
     <Ionicons name="person-outline" size={size} color={color} />
   ),
-  add: ({ color = '#000', size = 24 }: IconProps) => (
+  add: (color: string = '#000', size: number = 24) => (
     <Ionicons name="add-circle-outline" size={size} color={color} />
   ),
-  edit: ({ color = '#000', size = 24 }: IconProps) => (
+  edit: (color: string = '#000', size: number = 24) => (
     <Ionicons name="create-outline" size={size} color={color} />
   ),
-  delete: ({ color = '#000', size = 24 }: IconProps) => (
+  delete: (color: string = '#000', size: number = 24) => (
     <Ionicons name="trash-outline" size={size} color={color} />
   ),
-  back: ({ color = '#000', size = 24 }: IconProps) => (
+  back: (color: string = '#000', size: number = 24) => (
     <Ionicons name="arrow-back-outline" size={size} color={color} />
   ),
-  forward: ({ color = '#000', size = 24 }: IconProps) => (
+  forward: (color: string = '#000', size: number = 24) => (
     <Ionicons name="arrow-forward-outline" size={size} color={color} />
   ),
-  menu: ({ color = '#000', size = 24 }: IconProps) => (
+  menu: (color: string = '#000', size: number = 24) => (
     <Ionicons name="menu-outline" size={size} color={color} />
   ),
 }; 

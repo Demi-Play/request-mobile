@@ -27,7 +27,7 @@ export default function TicketDetailsScreen() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: (status: string) => tickets.update(Number(id), status, ticket?.priority || ''),
+    mutationFn: (status: string) => tickets.updateStatus(Number(id), status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket', id] });
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
@@ -36,7 +36,7 @@ export default function TicketDetailsScreen() {
   });
 
   const updatePriorityMutation = useMutation({
-    mutationFn: (priority: string) => tickets.update(Number(id), ticket?.status || '', priority),
+    mutationFn: (priority: string) => tickets.update(Number(id), { priority }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket', id] });
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
@@ -112,11 +112,11 @@ export default function TicketDetailsScreen() {
         )}
       </View>
 
-      <Button
+      {/* <Button
         title="Перейти к чату"
         onPress={() => router.push(`/chat/${id}`)}
         containerStyle={styles.chatButton}
-      />
+      /> */}
 
       <Dialog
         isVisible={showStatusDialog}

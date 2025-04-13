@@ -8,4 +8,7 @@ class MessageListView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         ticket_id = self.kwargs['ticket_id']
-        return Message.objects.filter(ticket_id=ticket_id)
+        return Message.objects.filter(ticket_id=ticket_id).order_by('timestamp')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)

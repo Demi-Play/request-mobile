@@ -1,11 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-type User = {
-  id: string;
-  email: string;
-  role: 'admin' | 'user';
-};
+import { User, UserRole } from '../types';
+import { auth } from '../services/api';
 
 type AuthContextType = {
   user: User | null;
@@ -29,7 +25,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userJson = await AsyncStorage.getItem('@user');
       if (userJson) {
-        setUser(JSON.parse(userJson));
+        const parsedUser = JSON.parse(userJson);
+        setUser({
+          ...parsedUser,
+          id: Number(parsedUser.id),
+          role: parsedUser.role as UserRole
+        });
       }
     } catch (error) {
       console.error('Error loading user:', error);
@@ -38,16 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      // Here you would typically make an API call to authenticate
-      // For now, we'll simulate a successful login with mock data
-      const mockUser: User = {
-        id: '1',
-        email,
-        role: email.includes('admin') ? 'admin' : 'user',
-      };
-      
-      await AsyncStorage.setItem('@user', JSON.stringify(mockUser));
-      setUser(mockUser);
+      const response = await auth.login(email, password);
+      await AsyncStorage.setItem('@user', JSON.stringify(response.user));
+      await AsyncStorage.setItem('token', response.token);
+      setUser(response.user);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -56,7 +51,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      await auth.logout();
       await AsyncStorage.removeItem('@user');
+      await AsyncStorage.removeItem('token');
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);

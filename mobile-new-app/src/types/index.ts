@@ -1,4 +1,4 @@
-export type UserRole = 'client' | 'specialist' | 'admin';
+export type UserRole = 'admin' | 'manager' | 'user' | 'support';
 
 export interface User {
   id: number;
@@ -7,9 +7,13 @@ export interface User {
   first_name: string;
   last_name: string;
   role: UserRole;
-  company: string;
-  phone: string;
-  is_admin?: boolean;
+  is_active: boolean;
+  date_joined: string;
+  last_login?: string;
+  phone?: string;
+  department?: string;
+  position?: string;
+  avatar?: string;
 }
 
 export interface UserUpdateData {
@@ -26,7 +30,7 @@ export interface PasswordChangeData {
 }
 
 export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
-export type TicketPriority = 'low' | 'medium' | 'high';
+export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface Ticket {
   id: number;
@@ -36,18 +40,29 @@ export interface Ticket {
   priority: TicketPriority;
   created_at: string;
   updated_at: string;
-  user: number;
-  can_edit: boolean;
-  can_update_status: boolean;
+  user: User;
+  specialist?: User;
+  department: number;
+  category: number;
+  due_date?: string;
+  attachments: string[];
+  tags: string[];
 }
 
 export interface Message {
   id: number;
-  content: string;
-  created_at: string;
+  text: string;
+  timestamp: string;
   ticket: number;
-  user: number;
-  is_read: boolean;
+  sender: {
+    id: number;
+    username: string;
+    email: string;
+    phone: string;
+    company: string;
+    role: string;
+  };
+  file: string | null;
 }
 
 export interface Chat {
@@ -65,4 +80,24 @@ export interface LoginResponse {
 export interface ApiError {
   message: string;
   status?: number;
+}
+
+export interface Notification {
+  id: number;
+  user: number;
+  title: string;
+  message: string;
+  type: NotificationType;
+  is_read: boolean;
+  created_at: string;
+  ticket?: number;
+}
+
+export type NotificationType = 'info' | 'warning' | 'error' | 'success';
+
+export interface NotificationFilter {
+  is_read?: boolean;
+  type?: NotificationType;
+  start_date?: string;
+  end_date?: string;
 } 
