@@ -54,15 +54,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.profile(color, size),
         }}
       />
-      {/* {user?.role === 'admin' && (
-        <Tabs.Screen
-          name="admin"
-          options={{
-            title: 'Админ',
-            tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.settings(color, size),
-          }}
-        />
-      )} */}
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Настройки',
+          tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.settings(color, size),
+        }}
+      />
     </Tabs>
   );
 } 

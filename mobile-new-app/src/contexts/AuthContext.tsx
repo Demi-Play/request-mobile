@@ -3,18 +3,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, UserRole } from '../types';
 import { auth } from '../services/api';
 
-type AuthContextType = {
+export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-};
+  updateUser: (user: User) => void;
+}
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isAuthenticated: false,
+  isAdmin: false,
+  login: async () => {},
+  logout: async () => {},
+  updateUser: () => {},
+});
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Load user from AsyncStorage on app start
@@ -31,6 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: Number(parsedUser.id),
           role: parsedUser.role as UserRole
         });
+        setIsAuthenticated(true);
+        setIsAdmin(parsedUser.role === 'admin');
       }
     } catch (error) {
       console.error('Error loading user:', error);
@@ -43,6 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem('@user', JSON.stringify(response.user));
       await AsyncStorage.setItem('token', response.token);
       setUser(response.user);
+      setIsAuthenticated(true);
+      setIsAdmin(response.user.role === 'admin');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -55,22 +69,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.removeItem('@user');
       await AsyncStorage.removeItem('token');
       setUser(null);
+      setIsAuthenticated(false);
+      setIsAdmin(false);
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
     }
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
   const value = {
     user,
-    isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin',
+    isAuthenticated,
+    isAdmin,
     login,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

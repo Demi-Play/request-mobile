@@ -54,7 +54,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.profile(color, size),
         }}
       />
-      {user?.role === 'admin' && (
+      {/* {user?.role === 'admin' && (
         <Tabs.Screen
           name="admin"
           options={{
@@ -62,7 +62,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }: TabBarIconProps) => ICONS.settings(color, size),
           }}
         />
-      )}
+      )} */}
     </Tabs>
   );
 } 

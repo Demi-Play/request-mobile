@@ -154,10 +154,22 @@ export const messages = {
     const { data } = await api.get(`/tickets/${ticketId}/messages/`);
     return data;
   },
-  send: async (ticketId: number, text: string): Promise<Message> => {
-    const { data } = await api.post(`/tickets/${ticketId}/messages/`, { 
-      ticket: ticketId,
-      text 
+  send: async (ticketId: number, text: string, file?: { uri: string; type?: string; name?: string }): Promise<Message> => {
+    const formData = new FormData();
+    formData.append('text', text);
+    formData.append('ticket', ticketId.toString());
+    if (file) {
+      formData.append('file', {
+        uri: file.uri,
+        type: file.type || 'image/jpeg',
+        name: file.name || 'photo.jpg',
+      } as any);
+    }
+    
+    const { data } = await api.post(`/tickets/${ticketId}/messages/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return data;
   },

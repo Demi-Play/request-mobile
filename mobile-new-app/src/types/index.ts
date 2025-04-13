@@ -6,11 +6,12 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  phone: string;
+  company: string;
   role: UserRole;
   is_active: boolean;
   date_joined: string;
   last_login?: string;
-  phone?: string;
   department?: string;
   position?: string;
   avatar?: string;
@@ -52,17 +53,15 @@ export interface Ticket {
 export interface Message {
   id: number;
   text: string;
-  timestamp: string;
-  ticket: number;
-  sender: {
+  file?: string;
+  user: {
     id: number;
     username: string;
-    email: string;
-    phone: string;
-    company: string;
-    role: string;
+    first_name?: string;
+    last_name?: string;
   };
-  file: string | null;
+  created_at: string;
+  is_read: boolean;
 }
 
 export interface Chat {
